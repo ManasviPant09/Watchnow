@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
 import BackgroundImage from '../components/BackgroundImage';
 import Header from '../components/Header';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { firebaseAuth } from '../utils/firebase-config';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const [email,setEmail] = useState("");
+  const[password,setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const handleSignup = async(e) =>{
+    e.preventDefault();
+    await firebaseAuth.auth().createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("created");
+        firebaseAuth.database().ref(`users/${user.uid}`).set({
+          email: email,
+          password: password
+        });
+        navigate('/home');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode,errorMessage)
+      });
+  }
   return (
     <Container>
         <BackgroundImage />
@@ -17,8 +41,10 @@ const Register = () => {
           <Title3>Ready to watch? Enter your email to create or restart your membership.</Title3>
         </TextContainer>
         <Form>
-          <Input placeholder="Email address" type="email"></Input>
-          <Button>Get Started<ArrowForwardIosIcon style={{fontSize: "20px",marginBottom: "-2px",marginLeft: "5px"}}/></Button>
+          <Input placeholder="Email address" type="email" onChange={(e)=>setEmail(e.target.value)} />
+          {showPassword && (<Input placeholder="Password" type="password" onChange={(e)=>setPassword(e.target.value)} />)}
+          {!showPassword && (<Button onClick={() => setShowPassword(true)}>Get Started<ArrowForwardIosIcon style={{fontSize: "20px",marginBottom: "-2px",marginLeft: "5px"}} /></Button>)}
+          {showPassword && <Button onClick={handleSignup}>Log In</Button>}
         </Form>
         </Body>
         </Wrapper>    
@@ -77,7 +103,7 @@ const Form = styled.form`
 `;
 const Input = styled.input`
   color: black;
-  border: none;
+  border: 1px solid black;
   padding: 1rem;
   font-size: 1.2rem;
   width: 60%;
@@ -98,5 +124,4 @@ const Button = styled.button`
   align-items: center;
   width: 30%;
 `;
-
 export default Register;

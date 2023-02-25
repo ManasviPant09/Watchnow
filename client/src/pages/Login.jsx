@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
-import BackgroundImage from '../components/BackgroundImage';
 import Logo from "../assets/Logo.png";
+import BackgroundImage from '../components/BackgroundImage';
+import { useNavigate } from 'react-router-dom';
+import { firebaseAuth } from '../utils/firebase-config';
 
-const Register = () => {
+const Login = () => {
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async(e) =>{
+    e.preventDefault();
+    firebaseAuth.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigate("/home");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        alert(errorMessage);
+      });
+  };
+  
   return (
     <Container>
         <BackgroundImage />
@@ -15,9 +37,10 @@ const Register = () => {
             <Content>
             <Title>Sign In</Title>
             <Form>
-              <Input placeholder="Email" name="username" type="text"/>
-              <Input placeholder="Password" name="password" type="password"/>
-              <Button>Sign In</Button>
+              <Input placeholder="Email" name="email" type="email" onChange={(e)=>setEmail(e.target.value)}/>
+              <Input placeholder="Password" name="password" type="password" onChange={(e)=>setPassword(e.target.value)}/>
+              <Button onClick={handleLogin}>Sign In</Button>
+
             </Form>
             </Content>
           </Body>
@@ -87,4 +110,4 @@ const Button = styled.button`
   cursor: pointer;
   width: 95%;
 `;
-export default Register;
+export default Login;

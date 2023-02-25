@@ -7,7 +7,7 @@ import { MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 const Header = (props) => {
   const navigate = useNavigate();
   const handleEvent=()=>{
-    navigate(props.login ? "/login" : "/signup");
+    navigate("/login");
   }
   return (
     <StyledHeader>
@@ -33,7 +33,7 @@ const Header = (props) => {
                     </Select>
                 </LanguageContainer>
             </FormControl>  
-            <Button onClick={handleEvent}>{props.login ? "Log In" : "Sign In"}</Button>
+            <Button onClick={handleEvent}>Sign In</Button>
         </Right>
     </StyledHeader>
   );
