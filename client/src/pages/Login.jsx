@@ -2,15 +2,25 @@ import React, { useState } from 'react';
 import styled from "styled-components";
 import Logo from "../assets/Logo.png";
 import BackgroundImage from '../components/BackgroundImage';
+import {GoogleButton} from "react-google-button";
 import { useNavigate } from 'react-router-dom';
 import { firebaseAuth } from '../utils/firebase-config';
+import { provider } from '../utils/firebase-config';
 
 const Login = () => {
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
+  const [showEmailWarning, setShowEmailWarning] = useState(false);
+  const [showPasswordWarning, setShowPasswordWarning] = useState(false); 
   const navigate = useNavigate();
-
+  //SIGNIN
   const handleLogin = async(e) =>{
+    if (email.trim() === '') {
+      setShowEmailWarning(true);
+    }
+    if (password.length < 4 || password.length > 60 || password.length === 0 ) {
+      setShowPasswordWarning(true);
+    }
     e.preventDefault();
     firebaseAuth.auth().signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
@@ -22,7 +32,25 @@ const Login = () => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(errorCode, errorMessage);
-        alert(errorMessage);
+      });
+  };
+  //GOOGLE SIGN IN
+  const handleGoogleSignIn = (e) => {
+    e.preventDefault();
+    firebaseAuth.auth().signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        const db = firebaseAuth.database();
+        db.ref('users/' + user.uid).set({
+          name: user.displayName,
+          email: user.email
+        });
+        navigate('/home');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
       });
   };
   
@@ -38,9 +66,11 @@ const Login = () => {
             <Title>Sign In</Title>
             <Form>
               <Input placeholder="Email" name="email" type="email" onChange={(e)=>setEmail(e.target.value)}/>
+              {showEmailWarning && <WarningEmail>Please enter a valid email address!</WarningEmail>}
               <Input placeholder="Password" name="password" type="password" onChange={(e)=>setPassword(e.target.value)}/>
+              {showPasswordWarning && <WarningPassword>Your password must contain between 4 and 60 characters.</WarningPassword>}
               <Button onClick={handleLogin}>Sign In</Button>
-
+              <GoogleButton style={GoogleLogin} onClick={handleGoogleSignIn}/>
             </Form>
             </Content>
           </Body>
@@ -98,16 +128,48 @@ const Input = styled.input`
   width: 90%;
   margin: 20px 20px 15px 0;
   padding: 15px 5px 15px 5px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  background-color: #404040;
+  ::placeholder{
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+    transform-origin: top left;
+  }
+  &:focus {
+    outline: none;
+    ::placeholder {
+      font-size: 0.75rem;
+      transform: translateY(-10px);
+    }
+  }
+`;
+const WarningEmail = styled.span`
+  color: #FFAC1C;
+  font-size: 0.75rem;
+  margin-top: -2%;
+`;
+const WarningPassword = styled.span`
+  color: #FFAC1C;
+  font-size: 0.75rem;
+  margin-top: -2%;
 `;
 const Button = styled.button`
   width: 40%;
   border: none;
-  border-radius: 2px;
-  margin: 50px 20px 15px 0;
+  border-radius: 5px;
+  margin: 30px 20px 15px 0;
   padding: 15px 5px 15px 5px;
   background-color: #e50914;
   color: white;
   cursor: pointer;
   width: 95%;
 `;
+const GoogleLogin = {
+  width: "95%",
+  border: "none",
+  borderRadius: "5px",
+}
 export default Login;
