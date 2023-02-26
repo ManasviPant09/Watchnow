@@ -4,7 +4,7 @@ import Logo from "../assets/Logo.png";
 import BackgroundImage from '../components/BackgroundImage';
 import {GoogleButton} from "react-google-button";
 import { useNavigate } from 'react-router-dom';
-import { firebaseAuth } from '../utils/firebase-config';
+import firebase from '../utils/firebase-config';
 import { provider } from '../utils/firebase-config';
 
 const Login = () => {
@@ -22,7 +22,7 @@ const Login = () => {
       setShowPasswordWarning(true);
     }
     e.preventDefault();
-    firebaseAuth.auth().signInWithEmailAndPassword(email, password)
+    firebase.auth().signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
@@ -37,10 +37,10 @@ const Login = () => {
   //GOOGLE SIGN IN
   const handleGoogleSignIn = (e) => {
     e.preventDefault();
-    firebaseAuth.auth().signInWithPopup(provider)
+    firebase.auth().signInWithPopup(provider)
       .then((result) => {
         const user = result.user;
-        const db = firebaseAuth.database();
+        const db = firebase.database();
         db.ref('users/' + user.uid).set({
           name: user.displayName,
           email: user.email

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import BackgroundImage from '../components/BackgroundImage';
 import Header from '../components/Header';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { firebaseAuth } from '../utils/firebase-config';
+import firebase from '../utils/firebase-config';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -13,11 +13,11 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const handleSignup = async(e) =>{
     e.preventDefault();
-    await firebaseAuth.auth().createUserWithEmailAndPassword(email, password)
+    await firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("created");
-        firebaseAuth.database().ref(`users/${user.uid}`).set({
+        firebase.database().ref(`users/${user.uid}`).set({
           email: email,
           password: password
         });
@@ -44,7 +44,7 @@ const Register = () => {
           <Input placeholder="Email address" type="email" onChange={(e)=>setEmail(e.target.value)} />
           {showPassword && (<Input placeholder="Password" type="password" onChange={(e)=>setPassword(e.target.value)} />)}
           {!showPassword && (<Button onClick={() => setShowPassword(true)}>Get Started<ArrowForwardIosIcon style={{fontSize: "20px",marginBottom: "-2px",marginLeft: "5px"}} /></Button>)}
-          {showPassword && <Button onClick={handleSignup}>Log In</Button>}
+          {showPassword && <Button onClick={handleSignup}>Register</Button>}
         </Form>
         </Body>
         </Wrapper>    
