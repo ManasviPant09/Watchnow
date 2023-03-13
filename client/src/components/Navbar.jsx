@@ -26,8 +26,7 @@ const Navbar = ({isScrolled}) => {
           <NotificationsNoneIcon style={{marginTop: "-1.5%", marginRight: "2%"}}/>
         </Right>
       </Wrapper>
-      
-    </Container>
+      </Container>
   )
 }
 const Container = styled.div`

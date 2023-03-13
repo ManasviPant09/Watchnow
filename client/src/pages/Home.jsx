@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Featured from '../components/Featured';
 import Navbar from '../components/Navbar';
 
 const Home = () => {
@@ -10,7 +11,8 @@ const Home = () => {
   }
   return (
     <Container>
-      <Navbar isScrolled={isScrolled}/> 
+      <Navbar/>
+      <Featured /> 
     </Container>
   );
 }
